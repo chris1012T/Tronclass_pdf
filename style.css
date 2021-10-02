@@ -1,0 +1,43 @@
+.content {
+    width: 1000px;
+    margin: auto;
+}
+
+.content h1 {
+    font-size: 30px;
+}
+
+.caution {
+    color: red;
+}
+
+h2 {
+    font-size: 25px;
+}
+
+ul {
+    list-style: decimal;
+    line-height: 2;
+    font-size: 18px;
+}
+
+.instruction {
+    font-size: 25px;
+}
+
+.instruction img {
+    width: 900px;
+}
+
+#pin1,
+#pin2 {
+    width: 440px;
+}
+
+#pin1 {
+    margin-right: 20px;
+}
+
+.instruction li {
+    margin-bottom: 20px;
+}

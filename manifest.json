@@ -1,0 +1,29 @@
+{
+    "name": "iClass get pdf",
+    "description": "本插件可下載iclass上大多數檔案，不限pdf檔案。",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_icon": {
+            "16": "/img/icon16.png",
+            "24": "/img/icon24.png",
+            "32": "/img/icon32.png",
+            "48": "/img/icon48.png",
+            "128": "/img/icon128.png"
+        },
+        "default_title": "請開啟教材頁面再點我"
+    },
+    "icons": {
+        "16": "/img/icon16.png",
+        "24": "/img/icon24.png",
+        "32": "/img/icon32.png",
+        "48": "/img/icon48.png",
+        "128": "/img/icon128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "scripting", "activeTab", "contextMenus", "downloads"
+    ]
+}
