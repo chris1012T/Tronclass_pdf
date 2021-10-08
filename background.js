@@ -24,7 +24,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.runtime.onMessage.addListener((data, info) => {
-    console.log(info);
+    // console.log(info);
     chrome.downloads.download({
         conflictAction: "uniquify",
         url: data.src
