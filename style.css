@@ -8,7 +8,7 @@
 }
 
 .caution {
-    color: red;
+    color: #ff3f0f;
 }
 
 h2 {
@@ -40,4 +40,8 @@ ul {
 
 .instruction li {
     margin-bottom: 20px;
+}
+
+body {
+    background-color: #fed;
 }
