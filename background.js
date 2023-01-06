@@ -10,11 +10,22 @@ chrome.contextMenus.create({
     contexts: ['action']
 });
 
-chrome.contextMenus.onClicked.addListener(async(info) => {
+chrome.contextMenus.create({
+    id: "contextmenu_download",
+    title: "下載此PDF (Tronclass)",
+    contexts: ['all']
+});
+
+chrome.contextMenus.onClicked.addListener(async(info, tab) => {
     if (info.menuItemId == "instructionPage") {
         await chrome.tabs.create({ url: "readme.html" });
+    } else if (info.menuItemId == "contextmenu_download") {
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['fetch.js']
+        });
     }
-})
+});
 
 chrome.action.onClicked.addListener((tab) => {
     chrome.scripting.executeScript({
@@ -23,8 +34,7 @@ chrome.action.onClicked.addListener((tab) => {
     });
 });
 
-chrome.runtime.onMessage.addListener((data, info) => {
-    // console.log(info);
+chrome.runtime.onMessage.addListener((data) => {
     chrome.downloads.download({
         conflictAction: "uniquify",
         url: data.src
