@@ -1,7 +1,7 @@
 {
     "name": "Tronclass pdf (原iClass get pdf)",
     "description": "本插件可以PDF格式下載Tronclass(iClass)上大多數檔案。",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "manifest_version": 3,
     "action": {
         "default_icon": {

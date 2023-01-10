@@ -12,7 +12,7 @@ chrome.contextMenus.create({
 
 chrome.contextMenus.create({
     id: "contextmenu_download",
-    title: "下載此PDF (Tronclass)",
+    title: "下載此教材 (Tronclass)",
     contexts: ['all']
 });
 
