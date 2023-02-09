@@ -4,6 +4,12 @@ chrome.runtime.onInstalled.addListener(async(detail) => {
     }
 });
 
+chrome.runtime.onInstalled.addListener(async(detail) => {
+    if (detail.reason == "update") {
+        await chrome.tabs.create({ url: "update_readme.html" });
+    }
+});
+
 chrome.contextMenus.create({
     id: "instructionPage",
     title: "使用說明",
