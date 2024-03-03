@@ -1,32 +1,58 @@
+body {
+    background-color: #F0F0F2;
+    color: #666666;
+    margin: 0;
+    padding: 0;
+}
+
 .content {
     width: 1000px;
     margin: auto;
 }
 
-.content h1 {
-    font-size: 30px;
+.header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
 
-.caution {
-    color: #b42208;
+#title {
+    font-size: 30px;
 }
 
 h2 {
     font-size: 25px;
 }
 
-ul {
-    list-style: decimal;
+#title,
+#github_icon {
+    display: block;
+}
+
+#github_icon {
+    height: 48px;
+    margin-top: 10px;
+}
+
+.caution {
+    color: #FF6347;
+}
+
+ol {
     line-height: 2;
     font-size: 18px;
 }
 
 .instruction {
-    font-size: 25px;
+    font-size: 18px;
 }
 
 .instruction img {
     width: 900px;
+}
+
+.instruction li {
+    margin-bottom: 20px;
 }
 
 #pin1,
@@ -38,10 +64,13 @@ ul {
     margin-right: 20px;
 }
 
-.instruction li {
-    margin-bottom: 20px;
+.hl {
+    border-top: 2px solid #CCC;
 }
 
-body {
-    background-color: #d7c5ac;
+.footer {
+    border-top: 1px #CCC solid;
+    padding: 3px 0 3px 0;
+    text-align: center;
+    background-color: #e2e2ec;
 }
