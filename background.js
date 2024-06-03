@@ -1,14 +1,17 @@
 chrome.runtime.onInstalled.addListener(async(detail) => {
-    if (detail.reason == "install") {
-        await chrome.tabs.create({ url: "readme.html" });
+    switch (detail.reason) {
+        case "install":
+            await chrome.tabs.create({ url: "readme.html" });
+            break;
+        case "update":
+            if (chrome.runtime.getManifest().version == '2.0.0') {
+                await chrome.tabs.create({ url: "update_readme.html" });
+            }
+            break;
     }
 });
 
-// chrome.runtime.onInstalled.addListener(async(detail) => {
-//     if (detail.reason == "update") {
-//         await chrome.tabs.create({ url: "update_readme.html" });
-//     }
-// });
+a = chrome.runtime.getManifest();
 
 chrome.contextMenus.create({
     id: "instructionPage",
@@ -23,8 +26,8 @@ chrome.contextMenus.create({
 });
 
 chrome.contextMenus.create({
-    id: "GithubPage",
-    title: "Github Page",
+    id: "GitHubPage",
+    title: "GitHub Page",
     contexts: ['action']
 });
 
@@ -39,7 +42,7 @@ chrome.contextMenus.onClicked.addListener(async(info, tab) => {
                 files: ['fetch.js']
             });
             break;
-        case "GithubPage":
+        case "GitHubPage":
             await chrome.tabs.create({ url: "https://github.com/chris1012T/Tronclass_pdf" });
             break;
     }
@@ -55,6 +58,7 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.runtime.onMessage.addListener((data) => {
     chrome.downloads.download({
         conflictAction: "uniquify",
-        url: data.src
+        url: data.src,
+        filename: `${data.filename}.pdf`
     });
 });

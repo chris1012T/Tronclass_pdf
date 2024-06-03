@@ -1,3 +1,5 @@
+[Firefox version of this extension](https://github.com/chris1012T/Tronclass_pdf_firefox)
+
 # Tronclass PDF
 
 This extension allows you to download most files from Tronclass in PDF format.
