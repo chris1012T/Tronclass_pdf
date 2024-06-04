@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(async(detail) => {
             await chrome.tabs.create({ url: "readme.html" });
             break;
         case "update":
-            if (chrome.runtime.getManifest().version == '2.0.0') {
+            if (chrome.runtime.getManifest().version == '2.3.0') {
                 await chrome.tabs.create({ url: "update_readme.html" });
             }
             break;
@@ -59,6 +59,6 @@ chrome.runtime.onMessage.addListener((data) => {
     chrome.downloads.download({
         conflictAction: "uniquify",
         url: data.src,
-        filename: `${data.filename}.pdf`
+        filename: data.filename
     });
 });
