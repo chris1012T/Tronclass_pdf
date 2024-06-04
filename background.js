@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(async(detail) => {
             await chrome.tabs.create({ url: "readme.html" });
             break;
         case "update":
-            if (chrome.runtime.getManifest().version == '2.3.0') {
+            if (chrome.runtime.getManifest().version == '2.3.1') {
                 await chrome.tabs.create({ url: "update_readme.html" });
             }
             break;
