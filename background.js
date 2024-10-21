@@ -11,8 +11,6 @@ chrome.runtime.onInstalled.addListener(async(detail) => {
     }
 });
 
-a = chrome.runtime.getManifest();
-
 chrome.contextMenus.create({
     id: "instructionPage",
     title: "使用說明",
