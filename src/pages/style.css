@@ -1,0 +1,348 @@
+/* Notebook style shared by readme.html and changelog.html, system fonts only. */
+:root {
+    --brand-red: #e8352f;
+    --brand-teal: #1aa99b;
+
+    --d-paper: #fbfcfd;
+    --d-grid: #e3ebf2;
+    --d-ink: #22313f;
+    --d-muted: #5f6f7e;
+    --d-mark: #b9f0e8;
+    --d-mark2: #ffd9d7;
+    --d-tape: rgba(26, 169, 155, 0.28);
+    --d-warn: #e0716b;
+    --d-sticker: #ffffff;
+
+    --sans: "Segoe UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --d-paper: #161b20;
+        --d-grid: #222b33;
+        --d-ink: #e2e8ed;
+        --d-muted: #a0acb7;
+        --d-mark: #1d5a53;
+        --d-mark2: #6a2a28;
+        --d-tape: rgba(60, 199, 184, 0.25);
+        --d-warn: #c25a54;
+        --d-sticker: #e9eef2;
+        color-scheme: dark;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    background-color: var(--d-paper);
+    color: var(--d-ink);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Notebook */
+.v4 {
+    background-color: var(--d-paper);
+    background-image: linear-gradient(var(--d-grid) 1px, transparent 1px), linear-gradient(90deg, var(--d-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--d-ink);
+    padding: 44px 24px 36px;
+}
+
+main.v4 {
+    min-height: 100vh;
+}
+
+.v4 .inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: grid;
+    gap: 26px;
+}
+
+.v4 h2 {
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 0;
+    display: inline;
+    background: linear-gradient(transparent 55%, var(--d-mark) 55%);
+    padding: 0 4px;
+}
+
+.v4 .lede {
+    margin: 10px 0 0;
+    color: var(--d-muted);
+}
+
+.v4 .mark {
+    background: linear-gradient(transparent 60%, var(--d-mark) 60%);
+    padding: 0 2px;
+}
+
+.v4 .mark.red {
+    background: linear-gradient(transparent 60%, var(--d-mark2) 60%);
+}
+
+.v4 h3 {
+    margin: 0 0 6px;
+    font-size: 19px;
+}
+
+.v4 h3 .no {
+    font-family: var(--mono);
+    color: var(--d-muted);
+    font-weight: 400;
+    margin-right: 8px;
+}
+
+.v4 .note {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: center;
+}
+
+.v4 .note p {
+    margin: 0;
+}
+
+.v4 .polaroids {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.v4 .pol {
+    background: var(--d-paper);
+    padding: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    position: relative;
+    max-width: 100%;
+}
+
+.v4 .pol::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 64px;
+    height: 20px;
+    transform: translateX(-50%) rotate(-2deg);
+    background: var(--d-tape);
+}
+
+.v4 .pol.l {
+    transform: rotate(-0.6deg);
+}
+
+.v4 .pol.r {
+    transform: rotate(0.5deg);
+}
+
+.v4 .pol.small {
+    width: 200px;
+}
+
+.v4 .terms {
+    border: 2px dashed var(--d-warn);
+    border-radius: 6px;
+    padding: 14px 18px;
+    background: var(--d-paper);
+}
+
+.v4 .terms strong {
+    font-size: 16px;
+}
+
+.v4 .terms ol {
+    margin: 6px 0 0;
+    padding-left: 1.3em;
+    font-size: 14px;
+    color: var(--d-muted);
+}
+
+.v4 .titlebar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.v4 .badges {
+    display: flex;
+    gap: 18px;
+}
+
+.v4 .badges a {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    color: var(--d-muted);
+}
+
+.v4 .badges img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    transition: filter 0.2s, transform 0.2s;
+}
+
+.v4 .badges a:nth-child(1) img {
+    transform: rotate(-0.6deg);
+}
+
+.v4 .badges a:nth-child(2) img {
+    transform: rotate(0.5deg);
+}
+
+.v4.icons-sticker .badges img {
+    filter: drop-shadow(2px 0 0 var(--d-sticker)) drop-shadow(-2px 0 0 var(--d-sticker)) drop-shadow(0 2px 0 var(--d-sticker)) drop-shadow(0 -2px 0 var(--d-sticker)) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.22));
+}
+
+.v4 .badges a:hover img {
+    transform: rotate(0deg) scale(1.06);
+}
+
+.v4 .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.v4 .foot span {
+    margin-left: auto;
+    color: var(--d-muted);
+    font-family: var(--mono);
+    font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .v4 .badges img {
+        transition: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .v4 .note {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Changelog */
+.v6 .log {
+    display: grid;
+    gap: 0;
+    position: relative;
+}
+
+.v6 .entry {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 0 26px;
+    padding: 18px 0;
+    border-bottom: 1px dashed var(--d-grid);
+}
+
+.v6 .entry:last-child {
+    border-bottom: 0;
+}
+
+.v6 .margin {
+    text-align: right;
+    padding-right: 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--d-muted);
+    font-variant-numeric: tabular-nums;
+    position: relative;
+}
+
+.v6 .entry > div:last-child {
+    border-left: 2px solid var(--d-warn);
+    padding-left: 22px;
+    min-width: 0;
+}
+
+.v6 .ver {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+}
+
+.v6 .ver .tag {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--d-muted);
+}
+
+.v6 .latest {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    background: linear-gradient(transparent 55%, var(--d-mark2) 55%);
+    padding: 0 3px;
+}
+
+.v6 ul {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.v6 li {
+    margin-bottom: 4px;
+}
+
+.v6 li::marker {
+    color: var(--d-muted);
+}
+
+.v6 .kind {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 2px;
+    margin-right: 4px;
+}
+
+.v6 .kind.add {
+    background: linear-gradient(transparent 55%, var(--d-mark) 55%);
+}
+
+.v6 .kind.fix {
+    background: linear-gradient(transparent 55%, var(--d-mark2) 55%);
+}
+
+@media (max-width: 720px) {
+    .v6 .entry {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .v6 .margin {
+        text-align: left;
+    }
+
+    .v6 .entry > div:last-child {
+        padding-left: 14px;
+    }
+}

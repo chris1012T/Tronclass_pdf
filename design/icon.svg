@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+    <defs>
+        <!-- hollow check: a wide stroke with a narrower stroke cut out of it -->
+        <mask id="check" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="128">
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M43,66 L57,80 L85,48" stroke="#fff" stroke-width="14"/>
+                <path d="M43,66 L57,80 L85,48" stroke="#000" stroke-width="7.5"/>
+            </g>
+        </mask>
+    </defs>
+    <path d="M32,18 H82 L100,37 V101 Q100,106 95,106 H32 Q27,106 27,101 V23 Q27,18 32,18 Z" fill="#ffffff" stroke="#f2674a" stroke-width="3"/>
+    <rect width="128" height="128" fill="#00b1b3" mask="url(#check)"/>
+</svg>

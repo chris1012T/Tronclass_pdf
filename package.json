@@ -1,0 +1,11 @@
+{
+    "name": "tronclass-pdf",
+    "private": true,
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "icons": "node scripts/render-icons.mjs",
+        "guide": "node scripts/render-guide.mjs",
+        "store": "node scripts/render-store.mjs",
+        "test": "node --test \"tests/**/*.test.js\""
+    }
+}
