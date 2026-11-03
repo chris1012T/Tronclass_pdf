@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { sanitizeFilename, extractMaterial } = require("../src/content/extract.js");
+const { sanitizeFilename, extractMaterial, audioExtension } = require("../src/content/extract.js");
 
 function stem(filename) {
     return filename.slice(0, filename.lastIndexOf("."));
@@ -55,11 +55,13 @@ function element(props) {
     return { innerText: "", src: "", currentSrc: "", ...props };
 }
 
-function fakeDocument({ viewer, title, video, videoTitle, selectors = [] } = {}) {
+function fakeDocument({ viewer, title, video, videoTitle, audio, selectors = [] } = {}) {
     const bySelector = {
         ".title span": title === undefined ? null : element({ innerText: title }),
         "video": video ? element(video) : null,
-        "span.title": videoTitle === undefined ? null : element({ innerText: videoTitle })
+        "span.title": videoTitle === undefined ? null : element({ innerText: videoTitle }),
+        // Passed through as is so a test can use an element without src or currentSrc.
+        ".audio": audio || null
     };
     for (const selector of selectors) {
         bySelector[selector] = element({});
@@ -170,4 +172,62 @@ test("extractMaterial tells course pages apart from unrelated pages", () => {
     assert.deepStrictEqual(extractMaterial(fakeDocument({ selectors: [".course-header-container"] }), PAGE), { ok: false, reason: "not-material" });
     assert.deepStrictEqual(extractMaterial(fakeDocument({ selectors: [".activity-title-wrapper"] }), PAGE), { ok: false, reason: "not-material" });
     assert.deepStrictEqual(extractMaterial(fakeDocument(), PAGE), { ok: false, reason: "not-found" });
+});
+
+test("audioExtension reads an allowed extension from the last path segment", () => {
+    const cases = [
+        ["https://x.edu/a/b.MP3?sig=1", "mp3"],
+        ["https://x.edu/a.m4a", "m4a"],
+        ["https://x.edu/a.opus#t=3", "opus"],
+        ["https://x.edu/a.webm", "webm"],
+        ["https://x.edu/file-storage/734ea4c7?x=1", "mp3"],
+        ["https://x.edu/a.exe", "mp3"],
+        ["https://x.edu/a.tar.ogg", "ogg"],
+        ["not a url", "mp3"],
+        ["https://x.edu/dir.m4a/file", "mp3"],
+        ["https://x.edu/f?name=a.m4a", "mp3"],
+        ["https://x.edu/a.M4A", "m4a"]
+    ];
+    for (const [url, expected] of cases) {
+        assert.strictEqual(audioExtension(url), expected, url);
+    }
+});
+
+function audio(currentSrc, src) {
+    return { currentSrc, src };
+}
+
+test("extractMaterial reads audio with currentSrc and the .title span title", () => {
+    assert.deepStrictEqual(
+        extractMaterial(fakeDocument({ audio: audio("https://x.edu/a.m4a", "https://x.edu/b.mp3"), title: "第三週 錄音" }), PAGE),
+        { ok: true, url: "https://x.edu/a.m4a", filename: "第三週 錄音.m4a" }
+    );
+});
+
+test("extractMaterial falls back to the audio src when currentSrc is empty", () => {
+    assert.strictEqual(extractMaterial(fakeDocument({ audio: audio("", "https://x.edu/b.mp3"), title: "x" }), PAGE).url, "https://x.edu/b.mp3");
+});
+
+test("extractMaterial picks the audio title from .title span, then span.title, then the default", () => {
+    const src = audio("", "https://x.edu/b.mp3");
+    assert.strictEqual(extractMaterial(fakeDocument({ audio: src, videoTitle: "講座" }), PAGE).filename, "講座.mp3");
+    assert.strictEqual(extractMaterial(fakeDocument({ audio: src }), PAGE).filename, "Tronclass教材.mp3");
+    assert.strictEqual(extractMaterial(fakeDocument({ audio: src, title: "", videoTitle: "講座" }), PAGE).filename, "講座.mp3");
+    assert.strictEqual(extractMaterial(fakeDocument({ audio: src, title: "第三週", videoTitle: "講座" }), PAGE).filename, "第三週.mp3");
+});
+
+test("extractMaterial reports streaming or missing audio", () => {
+    assert.deepStrictEqual(extractMaterial(fakeDocument({ audio: audio("blob:https://x.edu/1", "") }), PAGE), { ok: false, reason: "streaming-audio" });
+    assert.deepStrictEqual(extractMaterial(fakeDocument({ audio: audio("", "") }), PAGE), { ok: false, reason: "not-found" });
+    assert.deepStrictEqual(extractMaterial(fakeDocument({ audio: {} }), PAGE), { ok: false, reason: "not-found" });
+});
+
+test("extractMaterial checks PDF, then video, then audio, then course pages", () => {
+    const sound = audio("https://x.edu/a.m4a", "");
+    const withPdf = fakeDocument({ viewer: "https://x.edu/viewer.html?file=%2Fa.pdf&upload_id=1", title: "講義", audio: sound });
+    assert.strictEqual(extractMaterial(withPdf, PAGE).url, "https://x.edu/a.pdf");
+    const withVideo = fakeDocument({ video: { currentSrc: "https://x.edu/v.mp4" }, audio: sound });
+    assert.strictEqual(extractMaterial(withVideo, PAGE).url, "https://x.edu/v.mp4");
+    const withHeader = fakeDocument({ audio: sound, selectors: [".course-header-container"] });
+    assert.deepStrictEqual(extractMaterial(withHeader, PAGE), { ok: true, url: "https://x.edu/a.m4a", filename: "Tronclass教材.m4a" });
 });

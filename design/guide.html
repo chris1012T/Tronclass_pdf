@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<!-- Source of the readme page illustrations. scripts/render-guide.mjs captures each .scene at 2x. -->
+<head>
+<meta charset="UTF-8">
+<style>
+:root {
+    --bar: #eef1f4;
+    --line: #d9dfe5;
+    --ink: #2b3640;
+    --muted: #7b8792;
+    --skel: #e4e9ee;
+    --hi: #f2674a;
+    --teal: #00b1b3;
+    --blue: #1a73e8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 20px; background: #ffffff; font-family: "Segoe UI", "Noto Sans TC", "WenQuanYi Zen Hei", sans-serif; color: var(--ink); display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.scene { position: relative; background: #ffffff; overflow: hidden; border: 1px solid var(--line); }
+.small { width: 240px; height: 200px; }
+.wide { width: 480px; height: 300px; }
+
+.bar { height: 40px; background: var(--bar); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 10px; }
+.url { flex: 1; height: 24px; border-radius: 12px; background: #ffffff; border: 1px solid var(--line); display: flex; align-items: center; padding-left: 10px; }
+.url i { display: block; width: 46%; height: 6px; border-radius: 3px; background: var(--skel); }
+.btn { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; flex: none; }
+.btn svg { width: 18px; height: 18px; }
+.btn img { width: 18px; height: 18px; display: block; }
+.ring { box-shadow: 0 0 0 2.5px var(--hi); }
+
+.panel { position: absolute; background: #ffffff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 18px rgba(30, 45, 60, 0.14); }
+.panel h4 { margin: 0; font-size: 14px; font-weight: 600; }
+.row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.row img { width: 22px; height: 22px; display: block; }
+.row .name { flex: 1; white-space: nowrap; }
+.menu { font-size: 13.5px; padding: 6px; }
+.menu div { padding: 5px 10px; border-radius: 6px; white-space: nowrap; }
+.menu .on { box-shadow: inset 0 0 0 2px var(--hi); color: var(--ink); font-weight: 600; }
+/* the extension item carries the extension icon; the other items keep the same text column */
+.menu.icons div { padding-left: 34px; }
+.menu.icons .item { display: flex; align-items: center; gap: 8px; padding-left: 10px; }
+.menu.icons .item img { width: 16px; height: 16px; display: block; }
+
+.page { position: absolute; left: 0; right: 0; top: 41px; bottom: 0; padding: 16px; }
+.sk { height: 8px; border-radius: 4px; background: var(--skel); margin-bottom: 10px; }
+
+.tag { position: absolute; background: var(--hi); color: #ffffff; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
+.tag::after { content: ""; position: absolute; width: 8px; height: 8px; background: var(--hi); transform: rotate(45deg); }
+.tag.up::after { top: -3px; right: 14px; }
+.tag.left::after { left: -3px; top: 9px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+    <defs>
+        <symbol id="puzzle" viewBox="0 0 24 24"><path d="M10 3.5a2 2 0 0 1 4 0V5h4a1 1 0 0 1 1 1v4h-1.5a2 2 0 0 0 0 4H19v4a1 1 0 0 1-1 1h-4v-1.5a2 2 0 0 0-4 0V19H6a1 1 0 0 1-1-1v-4h1.5a2 2 0 0 0 0-4H5V6a1 1 0 0 1 1-1h4z" fill="#5f6b76"/></symbol>
+        <symbol id="star" viewBox="0 0 24 24"><path d="M12 4.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 16.5l-4.6 2.4.9-5.2L4.5 10l5.2-.8z" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="pin" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3v1.5H7V13l3-3zM12 14.5V20" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+        <symbol id="pin-on" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3v1.5H7V13l3-3z" fill="#1a73e8"/><path d="M12 14.5V20" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="#5f6b76" stroke-width="1.8"/><path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M6 6l1.8 1.8M16.2 16.2L18 18M6 18l1.8-1.8M16.2 7.8L18 6" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="menu" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="back" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="reload" viewBox="0 0 24 24"><path d="M18.5 12a6.5 6.5 0 1 1-2-4.7M18.5 4.5v3.5H15" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </defs>
+</svg>
+
+<!-- Chrome, step 1: open the puzzle menu and press the pin -->
+<div class="scene small" id="chrome-unpinned">
+    <div class="bar">
+        <div class="url"><i></i></div>
+        <span class="btn"><svg><use href="#star"/></svg></span>
+        <span class="btn ring"><svg><use href="#puzzle"/></svg></span>
+    </div>
+    <div class="panel" style="left:14px; right:10px; top:56px; padding:14px;">
+        <h4>擴充功能</h4>
+        <div class="row" style="margin-top:14px;"><img src="icon-small.svg" alt=""><span class="name">Tronclass PDF</span><span class="btn ring"><svg><use href="#pin"/></svg></span></div>
+        <div class="row" style="margin-top:12px; opacity:.45;"><span style="width:22px;height:22px;border-radius:5px;background:var(--skel)"></span><span class="sk" style="flex:1;margin:0"></span><span class="btn"><svg><use href="#pin"/></svg></span></div>
+    </div>
+</div>
+
+<!-- Chrome, step 1 done: the icon sits on the toolbar -->
+<div class="scene small" id="chrome-pinned">
+    <div class="bar">
+        <div class="url"><i></i></div>
+        <span class="btn"><svg><use href="#star"/></svg></span>
+        <span class="btn ring"><img src="icon-small.svg" alt=""></span>
+        <span class="btn"><svg><use href="#puzzle"/></svg></span>
+    </div>
+    <div class="panel" style="left:14px; right:10px; top:56px; padding:14px;">
+        <h4>擴充功能</h4>
+        <div class="row" style="margin-top:14px;"><img src="icon-small.svg" alt=""><span class="name">Tronclass PDF</span><span class="btn"><svg><use href="#pin-on"/></svg></span></div>
+        <div class="row" style="margin-top:12px; opacity:.45;"><span style="width:22px;height:22px;border-radius:5px;background:var(--skel)"></span><span class="sk" style="flex:1;margin:0"></span><span class="btn"><svg><use href="#pin"/></svg></span></div>
+    </div>
+</div>
+
+<!-- Firefox, step 1: puzzle menu, gear, then 釘選至工具列 -->
+<div class="scene small" id="firefox-unpinned">
+    <div class="bar">
+        <div class="url"><i></i></div>
+        <span class="btn"><svg><use href="#dl"/></svg></span>
+        <span class="btn ring"><svg><use href="#puzzle"/></svg></span>
+        <span class="btn"><svg><use href="#menu"/></svg></span>
+    </div>
+    <div class="panel" style="left:10px; right:10px; top:52px; padding:10px 12px;">
+        <div class="row"><img src="icon-small.svg" alt=""><span class="name">Tronclass PDF</span><span class="btn ring"><svg><use href="#gear"/></svg></span></div>
+    </div>
+    <div class="panel menu" style="left:44px; right:24px; top:100px;">
+        <div>管理擴充套件</div>
+        <div class="on">釘選至工具列</div>
+        <div>移除擴充套件</div>
+    </div>
+</div>
+
+<!-- Firefox, step 1 done: the icon sits on the toolbar -->
+<div class="scene small" id="firefox-pinned">
+    <div class="bar">
+        <div class="url"><i></i></div>
+        <span class="btn"><svg><use href="#dl"/></svg></span>
+        <span class="btn"><svg><use href="#puzzle"/></svg></span>
+        <span class="btn ring"><img src="icon-small.svg" alt=""></span>
+        <span class="btn"><svg><use href="#menu"/></svg></span>
+    </div>
+    <div class="page" style="padding-top:64px;">
+        <div class="sk" style="width:70%"></div>
+        <div class="sk" style="width:90%"></div>
+        <div class="sk" style="width:55%"></div>
+    </div>
+    <div class="tag up" style="right:38px; top:54px;">已釘選</div>
+</div>
+
+<!-- Step 2: open a material, then the toolbar icon or the right-click menu -->
+<div class="scene wide" id="downloading">
+    <div class="bar">
+        <span class="btn"><svg><use href="#back"/></svg></span>
+        <span class="btn"><svg><use href="#reload"/></svg></span>
+        <div class="url"><i style="width:34%"></i></div>
+        <span class="btn ring"><img src="icon-small.svg" alt=""></span>
+        <span class="btn"><svg><use href="#puzzle"/></svg></span>
+    </div>
+    <div class="page" style="background:#f6f8fa;">
+        <div style="position:absolute; left:28px; top:18px; width:190px; bottom:-10px; background:#ffffff; border:1px solid var(--line); border-radius:4px; padding:18px 16px;">
+            <div class="sk" style="width:60%; height:10px; background:#cfd8e0"></div>
+            <div class="sk" style="width:95%"></div>
+            <div class="sk" style="width:88%"></div>
+            <div class="sk" style="width:92%"></div>
+            <div class="sk" style="width:70%"></div>
+            <div style="height:58px; border-radius:4px; background:var(--skel); margin:14px 0 12px;"></div>
+            <div class="sk" style="width:90%"></div>
+            <div class="sk" style="width:80%"></div>
+        </div>
+        <div class="panel menu icons" style="left:150px; top:118px; width:222px;">
+            <div>返回</div>
+            <div>重新載入</div>
+            <div class="on item"><img src="icon-small.svg" alt="">下載此教材 (Tronclass)</div>
+        </div>
+    </div>
+    <div class="tag up" style="right:38px; top:52px;">① 按工具列圖示</div>
+    <div class="tag left" style="left:384px; top:225px;">② 或按右鍵</div>
+</div>
+
+</body>
+</html>

@@ -75,6 +75,30 @@ function extractVideo(doc, video) {
     return { ok: true, url, filename: sanitizeFilename(textOf(doc.querySelector("span.title")), "mp4") };
 }
 
+function audioExtension(url) {
+    try {
+        const name = new URL(url).pathname.split("/").pop();
+        const dot = name.lastIndexOf(".");
+        const extension = dot === -1 ? "" : name.slice(dot + 1).toLowerCase();
+        const allowed = ["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "flac", "weba", "webm"];
+        return allowed.includes(extension) ? extension : "mp3";
+    } catch {
+        return "mp3";
+    }
+}
+
+function extractAudio(doc, audio) {
+    const url = audio.currentSrc || audio.src || "";
+    if (url.startsWith("blob:")) {
+        return { ok: false, reason: "streaming-audio" };
+    }
+    if (url === "") {
+        return { ok: false, reason: "not-found" };
+    }
+    const title = textOf(doc.querySelector(".title span")) || textOf(doc.querySelector("span.title"));
+    return { ok: true, url, filename: sanitizeFilename(title, audioExtension(url)) };
+}
+
 function extractMaterial(doc, pageUrl) {
     const viewer = doc.getElementById("pdf-viewer");
     if (viewer) {
@@ -84,6 +108,10 @@ function extractMaterial(doc, pageUrl) {
     if (video) {
         return extractVideo(doc, video);
     }
+    const audio = doc.querySelector(".audio");
+    if (audio) {
+        return extractAudio(doc, audio);
+    }
     if (doc.querySelector(".course-header-container") || doc.querySelector(".activity-title-wrapper")) {
         return { ok: false, reason: "not-material" };
     }
@@ -91,5 +119,5 @@ function extractMaterial(doc, pageUrl) {
 }
 
 if (typeof module !== "undefined") {
-    module.exports = { sanitizeFilename, extractMaterial };
+    module.exports = { sanitizeFilename, extractMaterial, audioExtension };
 }

@@ -11,12 +11,16 @@ export const PLACEHOLDER_VALUES = {
         OTHER_STORE_URL: "https://addons.mozilla.org/en-US/firefox/addon/tronclass-pdf/",
         OTHER_STORE_ICON: "../img/firefox_addons_icon.png",
         OTHER_STORE_ALT: "firefox",
+        OTHER_STORE_NAME: "Firefox 版",
+        PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">圖釘</span>，圖示就會留在工具列。",
         GITHUB_URL
     },
     firefox: {
         OTHER_STORE_URL: "https://chromewebstore.google.com/detail/tronclass-pdf/hfnbdhdncoploidiifmbpenakollmggg",
         OTHER_STORE_ICON: "../img/chrome_extension_icon.svg",
         OTHER_STORE_ALT: "chrome",
+        OTHER_STORE_NAME: "Chrome 版",
+        PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">齒輪</span>，選<span class=\"mark\">「釘選至工具列」</span>，圖示就會留在工具列。",
         GITHUB_URL
     }
 };

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<!-- Source of the Chrome Web Store screenshots. scripts/render-store.mjs captures each .scene at 1280x800, 1x. -->
+<head>
+<meta charset="UTF-8">
+<style>
+:root {
+    --bar: #eef1f4;
+    --line: #d9dfe5;
+    --ink: #22313f;
+    --muted: #5f6f7e;
+    --skel: #e4e9ee;
+    --hi: #f2674a;
+    --teal: #1aa99b;
+    --mark: #b9f0e8;
+    --paper: #fbfcfd;
+    --grid: #e3ebf2;
+}
+* { box-sizing: border-box; }
+html, body { background: #ffffff; }
+body { margin: 0; padding: 0; font-family: "Segoe UI", "Noto Sans TC", "WenQuanYi Zen Hei", sans-serif; color: var(--ink); }
+.scene {
+    position: relative; width: 1280px; height: 800px; overflow: hidden;
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+}
+.mark { background: linear-gradient(transparent 58%, var(--mark) 58%); padding: 0 4px; }
+
+/* headings */
+.title { position: absolute; left: 0; right: 0; top: 64px; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 1px; }
+.sub { position: absolute; left: 0; right: 0; top: 140px; text-align: center; font-size: 24px; color: var(--muted); }
+
+/* browser mockup, drawn at guide.html scale and enlarged with transform */
+.win { position: absolute; background: #ffffff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; transform-origin: 0 0; box-shadow: 0 10px 30px rgba(30, 45, 60, 0.10); }
+.bar { height: 40px; background: var(--bar); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 10px; }
+.url { flex: 1; height: 24px; border-radius: 12px; background: #ffffff; border: 1px solid var(--line); display: flex; align-items: center; padding-left: 10px; }
+.url i { display: block; width: 46%; height: 6px; border-radius: 3px; background: var(--skel); }
+.btn { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; flex: none; }
+.btn svg { width: 18px; height: 18px; }
+.btn img { width: 18px; height: 18px; display: block; }
+.ring { box-shadow: 0 0 0 2.5px var(--hi); }
+.panel { position: absolute; background: #ffffff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 18px rgba(30, 45, 60, 0.14); }
+.menu { font-size: 13.5px; padding: 6px; }
+.menu div { padding: 5px 10px; border-radius: 6px; white-space: nowrap; }
+.menu .on { box-shadow: inset 0 0 0 2px var(--hi); color: var(--ink); font-weight: 600; }
+/* the extension item carries the extension icon; the other items keep the same text column */
+.menu.icons div { padding-left: 34px; }
+.menu.icons .item { display: flex; align-items: center; gap: 8px; padding-left: 10px; }
+.menu.icons .item img { width: 16px; height: 16px; display: block; }
+.page { position: absolute; left: 0; right: 0; top: 41px; bottom: 0; padding: 16px; background: #f6f8fa; }
+.sk { height: 8px; border-radius: 4px; background: var(--skel); margin-bottom: 10px; }
+.doc { position: absolute; background: #ffffff; border: 1px solid var(--line); border-radius: 4px; padding: 18px 16px; }
+.tag { position: absolute; background: var(--hi); color: #ffffff; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
+.tag::after { content: ""; position: absolute; width: 8px; height: 8px; background: var(--hi); transform: rotate(45deg); }
+.tag.up::after { top: -3px; right: 14px; }
+.tag.left::after { left: -3px; top: 9px; }
+
+/* scene 1 */
+.hero { position: absolute; left: 96px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; }
+.hero .name { display: flex; align-items: center; gap: 18px; font-size: 30px; font-weight: 700; }
+.hero .name img { width: 96px; height: 96px; display: block; }
+.hero h1 { margin: 40px 0 0; font-size: 56px; line-height: 1.25; font-weight: 700; }
+.hero p { margin: 28px 0 0; font-size: 24px; line-height: 1.7; color: var(--muted); }
+.ver { display: inline-block; margin-top: 36px; font-size: 18px; color: var(--teal); font-weight: 600; border: 2px solid var(--teal); border-radius: 20px; padding: 4px 16px; align-self: flex-start; }
+
+/* scene 2 */
+.cards { position: absolute; left: 0; right: 0; top: 232px; display: flex; justify-content: center; gap: 32px; }
+.card { position: relative; width: 236px; height: 260px; background: #ffffff; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 8px 24px rgba(30, 45, 60, 0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+.card svg { width: 110px; height: 130px; display: block; }
+.card b { font-size: 30px; font-weight: 700; }
+.card .new { position: absolute; top: -14px; right: -14px; background: var(--hi); color: #ffffff; font-size: 20px; font-weight: 700; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 4px 10px rgba(242, 103, 74, 0.35); }
+.fname { position: absolute; left: 0; right: 0; top: 572px; text-align: center; font-size: 30px; font-weight: 700; }
+.chip { position: absolute; left: 50%; top: 640px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; background: #ffffff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 26px 14px 18px; box-shadow: 0 8px 24px rgba(30, 45, 60, 0.10); font-size: 24px; white-space: nowrap; }
+.chip .ic { width: 48px; height: 48px; border-radius: 10px; background: #fdeee9; display: grid; place-items: center; }
+.chip .ic svg { width: 28px; height: 28px; }
+.chip .ok { color: var(--teal); font-size: 18px; font-weight: 600; margin-left: 8px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+    <defs>
+        <symbol id="puzzle" viewBox="0 0 24 24"><path d="M10 3.5a2 2 0 0 1 4 0V5h4a1 1 0 0 1 1 1v4h-1.5a2 2 0 0 0 0 4H19v4a1 1 0 0 1-1 1h-4v-1.5a2 2 0 0 0-4 0V19H6a1 1 0 0 1-1-1v-4h1.5a2 2 0 0 0 0-4H5V6a1 1 0 0 1 1-1h4z" fill="#5f6b76"/></symbol>
+        <symbol id="star" viewBox="0 0 24 24"><path d="M12 4.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 16.5l-4.6 2.4.9-5.2L4.5 10l5.2-.8z" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="back" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="reload" viewBox="0 0 24 24"><path d="M18.5 12a6.5 6.5 0 1 1-2-4.7M18.5 4.5v3.5H15" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14" fill="none" stroke="#5f6b76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- file glyph: page with folded corner; the label or symbol is drawn on top -->
+        <symbol id="sheet" viewBox="0 0 110 130"><path d="M10,4 H72 L104,36 V120 Q104,126 98,126 H10 Q4,126 4,120 V10 Q4,4 10,4 Z" fill="#ffffff" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M72,4 V30 Q72,36 78,36 H104" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/></symbol>
+    </defs>
+</svg>
+
+<!-- 1: hero -->
+<div class="scene" id="store-1">
+    <div class="hero">
+        <div class="name"><img src="icon.svg" alt="">Tronclass PDF</div>
+        <h1>一鍵下載<br><span class="mark">Tronclass 教材</span></h1>
+        <p>PDF、PPT、影片、音訊<br>考前複習不怕系統塞車</p>
+        <span class="ver">3.1.0 新增音訊下載</span>
+    </div>
+    <div class="win" style="left:676px; top:186px; width:320px; height:270px; transform:scale(1.6);">
+        <div class="bar">
+            <span class="btn"><svg><use href="#back"/></svg></span>
+            <div class="url"><i></i></div>
+            <span class="btn ring"><img src="icon-small.svg" alt=""></span>
+            <span class="btn"><svg><use href="#puzzle"/></svg></span>
+        </div>
+        <div class="page">
+            <div class="doc" style="left:24px; right:24px; top:30px; bottom:-10px;">
+                <div class="sk" style="width:55%; height:10px; background:#cfd8e0"></div>
+                <div class="sk" style="width:95%"></div>
+                <div class="sk" style="width:86%"></div>
+                <div style="height:56px; border-radius:4px; background:var(--skel); margin:14px 0 12px;"></div>
+                <div class="sk" style="width:90%"></div>
+                <div class="sk" style="width:76%"></div>
+            </div>
+        </div>
+        <div class="tag up" style="right:38px; top:50px;">按一下就下載</div>
+    </div>
+</div>
+
+<!-- 2: supported types and filenames -->
+<div class="scene" id="store-2">
+    <div class="title">教材格式<span class="mark">全支援</span></div>
+    <div class="sub">打開教材頁面，按一下就存到電腦</div>
+    <div class="cards">
+        <div class="card">
+            <svg style="color:#f2674a"><use href="#sheet"/><text x="54" y="90" text-anchor="middle" font-size="27" font-weight="700" fill="#f2674a" font-family="Segoe UI, WenQuanYi Zen Hei, sans-serif">PDF</text></svg>
+            <b>PDF</b>
+        </div>
+        <div class="card">
+            <svg style="color:#e8913a"><use href="#sheet"/><rect x="24" y="56" width="60" height="40" rx="4" fill="none" stroke="#e8913a" stroke-width="5"/><path d="M36,86 L50,72 L60,80 L72,66" fill="none" stroke="#e8913a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <b>PPT</b>
+        </div>
+        <div class="card">
+            <svg style="color:#1aa99b"><use href="#sheet"/><path d="M42,58 L74,78 L42,98 Z" fill="#1aa99b" stroke="#1aa99b" stroke-width="4" stroke-linejoin="round"/></svg>
+            <b>影片</b>
+        </div>
+        <div class="card">
+            <span class="new">新</span>
+            <svg style="color:#3d7fd9"><use href="#sheet"/><path d="M46,96 V58 L76,52 V88" fill="none" stroke="#3d7fd9" stroke-width="5" stroke-linejoin="round"/><ellipse cx="40" cy="96" rx="9" ry="7" fill="#3d7fd9"/><ellipse cx="70" cy="88" rx="9" ry="7" fill="#3d7fd9"/></svg>
+            <b>音訊</b>
+        </div>
+    </div>
+    <div class="fname">檔名自動使用教材標題</div>
+    <div class="chip">
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14" fill="none" stroke="#f2674a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span>第三章 線性代數.pdf</span>
+        <span class="ok">✓ 下載完成</span>
+    </div>
+</div>
+
+<!-- 3: two ways to download, an enlarged version of guide.html #downloading -->
+<div class="scene" id="store-3">
+    <div class="title" style="top:48px;">兩種方式，<span class="mark">隨手下載</span></div>
+    <div class="win" style="left:200px; top:150px; width:480px; height:300px; transform:scale(1.84); border-radius:4px;">
+        <div class="bar">
+            <span class="btn"><svg><use href="#back"/></svg></span>
+            <span class="btn"><svg><use href="#reload"/></svg></span>
+            <div class="url"><i style="width:34%"></i></div>
+            <span class="btn ring"><img src="icon-small.svg" alt=""></span>
+            <span class="btn"><svg><use href="#puzzle"/></svg></span>
+        </div>
+        <div class="page">
+            <div class="doc" style="left:28px; top:18px; width:190px; bottom:-10px;">
+                <div class="sk" style="width:60%; height:10px; background:#cfd8e0"></div>
+                <div class="sk" style="width:95%"></div>
+                <div class="sk" style="width:88%"></div>
+                <div class="sk" style="width:92%"></div>
+                <div class="sk" style="width:70%"></div>
+                <div style="height:58px; border-radius:4px; background:var(--skel); margin:14px 0 12px;"></div>
+                <div class="sk" style="width:90%"></div>
+                <div class="sk" style="width:80%"></div>
+            </div>
+            <div class="panel menu icons" style="left:150px; top:118px; width:222px;">
+                <div>返回</div>
+                <div>重新載入</div>
+                <div class="on item"><img src="icon-small.svg" alt="">下載此教材 (Tronclass)</div>
+            </div>
+        </div>
+        <div class="tag up" style="right:38px; top:52px;">① 按工具列圖示</div>
+        <div class="tag left" style="left:384px; top:225px;">② 或按右鍵</div>
+    </div>
+</div>
+
+</body>
+</html>

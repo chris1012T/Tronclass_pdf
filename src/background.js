@@ -15,6 +15,11 @@ async function createMenus() {
         contexts: ["action"]
     });
     chrome.contextMenus.create({
+        id: "changelogPage",
+        title: "更新紀錄",
+        contexts: ["action"]
+    });
+    chrome.contextMenus.create({
         id: "contextmenu_download",
         title: "下載此教材 (Tronclass)",
         contexts: ["all"]
@@ -59,12 +64,76 @@ async function startDownload(url, filename) {
     }
 }
 
+// Runs the task and turns a throw or rejection into a warning.
+async function quietly(label, task) {
+    try {
+        return await task();
+    } catch (error) {
+        console.warn(label, error);
+        return undefined;
+    }
+}
+
+async function applyBadge(pending) {
+    if (pending) {
+        await Promise.all([
+            quietly("Cannot set the badge text:", () => chrome.action.setBadgeText({ text: "NEW" })),
+            quietly("Cannot set the badge color:", () => chrome.action.setBadgeBackgroundColor({ color: "#1aa99b" })),
+            quietly("Cannot set the toolbar title:", () => chrome.action.setTitle({ title: WHATS_NEW_TITLE }))
+        ]);
+        return;
+    }
+    const resetTitle = () => chrome.action.setTitle({ title: chrome.runtime.getManifest().action.default_title });
+    await Promise.all([
+        quietly("Cannot clear the badge text:", () => chrome.action.setBadgeText({ text: "" })),
+        quietly("Cannot reset the toolbar title:", resetTitle)
+    ]);
+}
+
+async function readWhatsNewPending() {
+    const stored = await quietly("Cannot read the update notice state:", () => chrome.storage.local.get("whatsNewPending"));
+    return Boolean(stored && stored.whatsNewPending);
+}
+
+async function restoreBadge() {
+    if (await readWhatsNewPending()) {
+        await applyBadge(true);
+    }
+}
+
+// Every service worker or background page start restores the badge, since browsers may drop it on restart.
+const badgeRestored = restoreBadge();
+
+async function maybeShowWhatsNew(tabId) {
+    // Wait for the restore so it cannot set NEW again after the clear below.
+    await badgeRestored;
+    if (!(await readWhatsNewPending())) {
+        return;
+    }
+    try {
+        await chrome.scripting.executeScript({ target: { tabId }, func: showWhatsNew, args: [WHATS_NEW_MESSAGE] });
+    } catch (error) {
+        console.warn("Cannot show the update notice, keeping it for the next download:", error);
+        return;
+    }
+    await quietly("Cannot save the update notice state:", () => chrome.storage.local.set({ whatsNewPending: false }));
+    await applyBadge(false);
+}
+
+async function handleDownload(message, sender) {
+    await startDownload(message.url, message.filename);
+    if (sender.tab) {
+        await maybeShowWhatsNew(sender.tab.id);
+    }
+}
+
 chrome.runtime.onInstalled.addListener(async (details) => {
     setupMenus();
     if (details.reason === "install") {
         await chrome.tabs.create({ url: "pages/readme.html" });
     } else if (details.reason === "update" && shouldShowChangelog(details.previousVersion, chrome.runtime.getManifest().version)) {
-        await chrome.tabs.create({ url: "pages/changelog.html" });
+        await quietly("Cannot save the update notice state:", () => chrome.storage.local.set({ whatsNewPending: true }));
+        await applyBadge(true);
     }
 });
 
@@ -76,6 +145,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     switch (info.menuItemId) {
         case "instructionPage":
             await chrome.tabs.create({ url: "pages/readme.html" });
+            break;
+        case "changelogPage":
+            await chrome.tabs.create({ url: "pages/changelog.html" });
             break;
         case "contextmenu_download":
             await downloadMaterial(tab);
@@ -94,5 +166,5 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     if (!isDownloadMessage(message, sender, chrome.runtime.id)) {
         return;
     }
-    startDownload(message.url, message.filename);
+    handleDownload(message, sender);
 });

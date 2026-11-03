@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+    <!-- bold variant for 16, 24 and 32px: thicker outline and a solid check -->
+    <path d="M32,18 H82 L100,37 V101 Q100,106 95,106 H32 Q27,106 27,101 V23 Q27,18 32,18 Z" fill="#ffffff" stroke="#f2674a" stroke-width="9"/>
+    <path d="M43,66 L57,80 L85,48" fill="none" stroke="#00b1b3" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -23,15 +23,15 @@ const ICONS = {
 
 const COMMON = {
     name: "Tronclass pdf",
-    description: "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、PDF及PPT(以PDF格式下載)。 #Tronclass pdf下載 #iClass pdf下載 #Tronclass教材下載",
-    version: "3.0.0",
+    description: "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。 #Tronclass pdf下載 #iClass pdf下載 #Tronclass教材下載",
+    version: "3.1.0",
     manifest_version: 3,
     action: {
         default_icon: ICONS,
         default_title: "請先開啟教材頁面再點我"
     },
     icons: ICONS,
-    permissions: ["scripting", "activeTab", "contextMenus", "downloads"]
+    permissions: ["scripting", "activeTab", "contextMenus", "downloads", "storage"]
 };
 
 const EXPECTED_CHROME = {
@@ -104,14 +104,14 @@ test("mergeManifest deep merges objects and replaces arrays", () => {
 });
 
 test("fillPlaceholders fills Chrome and Firefox values", () => {
-    const html = "<a href=\"{{OTHER_STORE_URL}}\"><img src=\"{{OTHER_STORE_ICON}}\" alt=\"{{OTHER_STORE_ALT}}\"></a><a href=\"{{GITHUB_URL}}\"></a>";
+    const html = "<a href=\"{{OTHER_STORE_URL}}\"><img src=\"{{OTHER_STORE_ICON}}\" alt=\"{{OTHER_STORE_ALT}}\">{{OTHER_STORE_NAME}}</a><a href=\"{{GITHUB_URL}}\"></a>";
     assert.strictEqual(
         lib.fillPlaceholders(html, lib.PLACEHOLDER_VALUES.chrome),
-        "<a href=\"https://addons.mozilla.org/en-US/firefox/addon/tronclass-pdf/\"><img src=\"../img/firefox_addons_icon.png\" alt=\"firefox\"></a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
+        "<a href=\"https://addons.mozilla.org/en-US/firefox/addon/tronclass-pdf/\"><img src=\"../img/firefox_addons_icon.png\" alt=\"firefox\">Firefox 版</a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
     );
     assert.strictEqual(
         lib.fillPlaceholders(html, lib.PLACEHOLDER_VALUES.firefox),
-        "<a href=\"https://chromewebstore.google.com/detail/tronclass-pdf/hfnbdhdncoploidiifmbpenakollmggg\"><img src=\"../img/chrome_extension_icon.svg\" alt=\"chrome\"></a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
+        "<a href=\"https://chromewebstore.google.com/detail/tronclass-pdf/hfnbdhdncoploidiifmbpenakollmggg\"><img src=\"../img/chrome_extension_icon.svg\" alt=\"chrome\">Chrome 版</a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
     );
 });
 

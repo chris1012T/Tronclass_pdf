@@ -82,3 +82,20 @@ test("an unrelated page says nothing was found", () => {
     assert.deepStrictEqual(alerts, ["這個頁面找不到可下載的教材。"]);
     assert.deepStrictEqual(sent, []);
 });
+
+test("an audio page sends a download message", () => {
+    const { context, sent, alerts } = makeContext();
+    inject(context, fakeDocument({
+        ".audio": { currentSrc: "https://x.edu/a.m4a", src: "" },
+        ".title span": { innerText: "第三週 錄音" }
+    }));
+    assert.deepStrictEqual(sent, [{ type: "download", url: "https://x.edu/a.m4a", filename: "第三週 錄音.m4a" }]);
+    assert.deepStrictEqual(alerts, []);
+});
+
+test("a streaming audio explains it cannot be downloaded", () => {
+    const { context, sent, alerts } = makeContext();
+    inject(context, fakeDocument({ ".audio": { currentSrc: "blob:https://x.edu/1", src: "" } }));
+    assert.deepStrictEqual(alerts, ["這個音訊是串流格式，無法直接下載。"]);
+    assert.deepStrictEqual(sent, []);
+});

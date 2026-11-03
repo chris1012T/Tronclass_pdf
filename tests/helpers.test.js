@@ -66,3 +66,9 @@ test("isDownloadMessage never throws on non objects", () => {
         });
     }
 });
+
+test("the update notice texts are exact", () => {
+    const { WHATS_NEW_MESSAGE, WHATS_NEW_TITLE } = require("../src/lib/helpers.js");
+    assert.strictEqual(WHATS_NEW_MESSAGE, "Tronclass PDF 更新：現在也能下載音訊教材了。");
+    assert.strictEqual(WHATS_NEW_TITLE, "Tronclass PDF：新增音訊下載，按一下圖示即可下載教材");
+});
