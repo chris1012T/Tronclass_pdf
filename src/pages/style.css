@@ -21,6 +21,16 @@ body {
     gap: 10px;
 }
 
+.store-icon {
+    height: 54px;
+    margin-top: 10px;
+}
+
+.github-icon {
+    height: 48px;
+    margin-top: 10px;
+}
+
 h2 {
     font-size: 25px;
 }

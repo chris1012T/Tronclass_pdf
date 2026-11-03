@@ -1,0 +1,8 @@
+{
+    "name": "tronclass-pdf",
+    "private": true,
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "test": "node --test \"tests/**/*.test.js\""
+    }
+}
