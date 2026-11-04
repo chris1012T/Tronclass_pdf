@@ -23,7 +23,7 @@ const ICONS = {
 
 const COMMON = {
     name: "Tronclass pdf",
-    description: "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。 #Tronclass pdf下載 #iClass pdf下載 #Tronclass教材下載",
+    description: "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。",
     version: "3.1.0",
     manifest_version: 3,
     action: {
