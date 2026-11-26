@@ -1,14 +1,15 @@
 (function () {
-    const messages = {
-        "not-material": "請先開啟教材!",
-        "streaming-video": "這部影片是串流格式，無法直接下載。",
-        "streaming-audio": "這個音訊是串流格式，無法直接下載。",
-        "not-found": "這個頁面找不到可下載的教材。"
+    // Kept inside the IIFE because this file is injected again on every click.
+    const messageKeys = {
+        "not-material": "errorNotMaterial",
+        "streaming-video": "errorStreamingVideo",
+        "streaming-audio": "errorStreamingAudio",
+        "not-found": "errorNotFound"
     };
-    const result = extractMaterial(document, location.href);
+    const result = extractMaterial(document, location.href, chrome.i18n.getMessage("fallbackFilename"));
     if (result.ok) {
         chrome.runtime.sendMessage({ type: "download", url: result.url, filename: result.filename });
         return;
     }
-    alert(messages[result.reason]);
+    alert(chrome.i18n.getMessage(messageKeys[result.reason]));
 })();

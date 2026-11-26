@@ -1,7 +1,8 @@
 {
     "name": "Tronclass pdf",
-    "description": "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。",
-    "version": "3.1.0",
+    "description": "__MSG_extDescription__",
+    "default_locale": "en",
+    "version": "3.2.0",
     "manifest_version": 3,
     "action": {
         "default_icon": {
@@ -11,7 +12,7 @@
             "48": "/img/icon48.png",
             "128": "/img/icon128.png"
         },
-        "default_title": "請先開啟教材頁面再點我"
+        "default_title": "__MSG_actionTitle__"
     },
     "icons": {
         "16": "/img/icon16.png",

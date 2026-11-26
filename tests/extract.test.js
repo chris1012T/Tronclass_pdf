@@ -1,5 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert");
+const fs = require("node:fs");
+const path = require("node:path");
 const { sanitizeFilename, extractMaterial, audioExtension } = require("../src/content/extract.js");
 
 function stem(filename) {
@@ -25,6 +27,11 @@ test("sanitizeFilename trims leading and trailing newlines before replacing", ()
 test("sanitizeFilename falls back when nothing is left", () => {
     assert.strictEqual(sanitizeFilename("", "mp4"), "Tronclass教材.mp4");
     assert.strictEqual(sanitizeFilename("...", "pdf"), "Tronclass教材.pdf");
+    assert.strictEqual(sanitizeFilename("", "pdf"), "Tronclass教材.pdf");
+    assert.strictEqual(sanitizeFilename("", "pdf", ""), "Tronclass教材.pdf");
+    assert.strictEqual(sanitizeFilename("", "pdf", undefined), "Tronclass教材.pdf");
+    assert.strictEqual(sanitizeFilename("  ", "pdf", "Tronclass material"), "Tronclass material.pdf");
+    assert.strictEqual(sanitizeFilename("講義", "pdf", "Tronclass material"), "講義.pdf");
 });
 
 test("sanitizeFilename truncates to 200 UTF-8 bytes by code point", () => {
@@ -230,4 +237,21 @@ test("extractMaterial checks PDF, then video, then audio, then course pages", ()
     assert.strictEqual(extractMaterial(withVideo, PAGE).url, "https://x.edu/v.mp4");
     const withHeader = fakeDocument({ audio: sound, selectors: [".course-header-container"] });
     assert.deepStrictEqual(extractMaterial(withHeader, PAGE), { ok: true, url: "https://x.edu/a.m4a", filename: "Tronclass教材.m4a" });
+});
+
+test("extractMaterial passes the fallback filename to every material type", () => {
+    const fallback = "Tronclass material";
+    const pdf = fakeDocument({ viewer: "https://x.edu/viewer.html?file=%2Fa.pdf&upload_id=1" });
+    assert.strictEqual(extractMaterial(pdf, PAGE, fallback).filename, "Tronclass material.pdf");
+    const video = fakeDocument({ video: { currentSrc: "https://x.edu/v.mp4" } });
+    assert.strictEqual(extractMaterial(video, PAGE, fallback).filename, "Tronclass material.mp4");
+    const sound = fakeDocument({ audio: audio("https://x.edu/a.m4a", "") });
+    assert.strictEqual(extractMaterial(sound, PAGE, fallback).filename, "Tronclass material.m4a");
+    assert.strictEqual(extractMaterial(sound, PAGE, "").filename, "Tronclass教材.m4a");
+});
+
+test("extract.js does not touch the chrome API", () => {
+    // It runs alone in a vm in these tests, so the caller passes anything translated.
+    const code = fs.readFileSync(path.resolve(__dirname, "..", "src", "content", "extract.js"), "utf8");
+    assert.ok(!code.includes("chrome."));
 });

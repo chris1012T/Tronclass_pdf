@@ -18,10 +18,32 @@ function readPage(target, name) {
     return fs.readFileSync(path.join(target, "pages", name), "utf8");
 }
 
+// Keyed by browser, then by page language.
 const STORE_CHECKS = {
-    chrome: { has: ["addons.mozilla.org", "firefox_addons_icon.png", "Firefox 版"], lacks: ["chromewebstore", "Chrome 版"] },
-    firefox: { has: ["chromewebstore.google.com", "chrome_extension_icon.svg", "Chrome 版"], lacks: ["addons.mozilla.org", "Firefox 版"] }
+    chrome: {
+        zh_TW: { has: ["addons.mozilla.org", "firefox_addons_icon.png", "Firefox 版"], lacks: ["chromewebstore", "Chrome 版"] },
+        en: { has: ["addons.mozilla.org", "firefox_addons_icon.png", "Firefox version"], lacks: ["chromewebstore", "Chrome version"] }
+    },
+    firefox: {
+        zh_TW: { has: ["chromewebstore.google.com", "chrome_extension_icon.svg", "Chrome 版"], lacks: ["addons.mozilla.org", "Firefox 版"] },
+        en: { has: ["chromewebstore.google.com", "chrome_extension_icon.svg", "Chrome version"], lacks: ["addons.mozilla.org", "Firefox version"] }
+    }
 };
+
+// Each page, its language and the page in the other language that its switch link points to.
+const PAGES = [
+    { page: "readme.html", locale: "zh_TW", other: "readme.en.html", switchText: "English" },
+    { page: "changelog.html", locale: "zh_TW", other: "changelog.en.html", switchText: "English" },
+    { page: "readme.en.html", locale: "en", other: "readme.html", switchText: "繁體中文" },
+    { page: "changelog.en.html", locale: "en", other: "changelog.html", switchText: "繁體中文" }
+];
+
+const TERMS_EN = [
+    "Please respect intellectual property rights.",
+    "This extension is only for students to download materials for review before exams, so they stay readable when the school system is overloaded.",
+    "If material is distributed without the consent of its author, this extension and its author bear no legal or other liability for any resulting direct or indirect loss or damage; the infringer bears it alone.",
+    "Installing this extension means you agree to the terms above."
+];
 
 const TERMS = [
     "請尊重智慧財產權。",
@@ -31,6 +53,7 @@ const TERMS = [
 ];
 
 const RELEASE_ORDER = [
+    "2026-11-26", "v3.2.0",
     "2026-11-04", "v3.1.0",
     "2026-11-03", "v3.0.0",
     "2024-10-14", "v1.1.0",
@@ -48,20 +71,22 @@ function assertInOrder(html, texts) {
 }
 
 for (const browser of ["chrome", "firefox"]) {
-    for (const page of ["readme.html", "changelog.html"]) {
+    for (const { page, locale } of PAGES) {
         test(`${browser} ${page} links to the other store and the merged repository`, async (t) => {
             const html = readPage(await buildInto(t, browser), page);
-            for (const text of [...STORE_CHECKS[browser].has, "https://github.com/chris1012T/Tronclass_pdf\""]) {
+            const checks = STORE_CHECKS[browser][locale];
+            for (const text of [...checks.has, "https://github.com/chris1012T/Tronclass_pdf\""]) {
                 assert.ok(html.includes(text), `missing ${text}`);
             }
             const badgesStart = html.indexOf("<div class=\"badges\">");
             const badges = html.slice(badgesStart, html.indexOf("</div>", badgesStart));
-            for (const text of [...STORE_CHECKS[browser].lacks, "Tronclass_pdf_Firefox", "Tronclass_pdf_firefox", "{{"]) {
-                // The v3.0.0 entry says "Chrome 與 Firefox 版本合併", so store names are only checked in the badge links there.
-                const scope = page === "changelog.html" && text.endsWith(" 版") ? badges : html;
+            for (const text of [...checks.lacks, "Tronclass_pdf_Firefox", "Tronclass_pdf_firefox", "{{"]) {
+                // The v3.0.0 entry names the Chrome and Firefox versions, so store names are only checked in the badge links there.
+                const storeName = text.endsWith(" 版") || text.endsWith(" version");
+                const scope = page.startsWith("changelog") && storeName ? badges : html;
                 assert.ok(!scope.includes(text), `unexpected ${text}`);
             }
-            assert.ok(badges.includes(STORE_CHECKS[browser].has[2]), "badge link text");
+            assert.ok(badges.includes(checks.has[2]), "badge link text");
         });
     }
 
@@ -73,11 +98,32 @@ for (const browser of ["chrome", "firefox"]) {
         assert.ok(!html.includes(pinWords[other]), "pin steps for the other browser");
     });
 
+    test(`${browser} readme.en.html explains how to pin in that browser in English`, async (t) => {
+        const html = readPage(await buildInto(t, browser), "readme.en.html");
+        const pinWords = {
+            chrome: "Click the puzzle icon at the top right, then click the <span class=\"mark\">pin</span> next to Tronclass PDF to keep its icon on the toolbar.",
+            firefox: "Click the puzzle icon at the top right, click the <span class=\"mark\">gear</span> next to Tronclass PDF, then choose <span class=\"mark\">Pin to Toolbar</span>."
+        };
+        const other = browser === "chrome" ? "firefox" : "chrome";
+        assert.ok(html.includes(`<p>${pinWords[browser]}</p>`), "pin steps for this browser");
+        assert.ok(!html.includes(pinWords[other]), "pin steps for the other browser");
+    });
+
+    test(`${browser} English pages have no Han characters besides the switch link`, async (t) => {
+        const target = await buildInto(t, browser);
+        for (const page of ["readme.en.html", "changelog.en.html"]) {
+            const html = readPage(target, page);
+            assert.strictEqual(html.split("繁體中文").length, 2, `${page} has one switch link text`);
+            const rest = html.replace("繁體中文", "");
+            assert.deepStrictEqual(rest.match(/\p{Script=Han}/gu), null, page);
+        }
+    });
+
     test(`${browser} pages only reference files that exist`, async (t) => {
         const target = await buildInto(t, browser);
         const pagesDir = path.join(target, "pages");
         const pages = fs.readdirSync(pagesDir).filter((name) => name.endsWith(".html"));
-        assert.deepStrictEqual(pages.sort(), ["changelog.html", "readme.html"]);
+        assert.deepStrictEqual(pages.sort(), ["changelog.en.html", "changelog.html", "readme.en.html", "readme.html"]);
         let checked = 0;
         for (const page of pages) {
             const html = readPage(target, page);
@@ -92,13 +138,24 @@ for (const browser of ["chrome", "firefox"]) {
                 checked++;
             }
         }
-        assert.ok(checked >= 10, `only ${checked} references checked`);
+        assert.ok(checked >= 20, `only ${checked} references checked`);
     });
 
     test(`${browser} changelog lists every release in order`, async (t) => {
         const html = readPage(await buildInto(t, browser), "changelog.html");
         assertInOrder(html, RELEASE_ORDER);
         assert.ok(html.includes("下載音訊教材"), "missing 下載音訊教材");
+    });
+
+    test(`${browser} English changelog lists every release in the same order`, async (t) => {
+        const target = await buildInto(t, browser);
+        const html = readPage(target, "changelog.en.html");
+        assertInOrder(html, RELEASE_ORDER);
+        assert.ok(html.includes("Audio materials can be downloaded."), "missing the audio entry");
+        const versionsOf = (text) => [...text.matchAll(/<div class="margin">([^<]*)<\/div>\s*<div>\s*<h3 class="ver">(v[\d.]+)/g)].map((match) => match.slice(1).join(" "));
+        assert.deepStrictEqual(versionsOf(html), versionsOf(readPage(target, "changelog.html")));
+        const itemCounts = (text) => text.split("<article").slice(1).map((entry) => entry.split("<li>").length - 1);
+        assert.deepStrictEqual(itemCounts(html), itemCounts(readPage(target, "changelog.html")));
     });
 }
 
@@ -122,23 +179,64 @@ test("the changelog lists the new icon under v3.1.0", () => {
     assert.ok(list.includes(entry), "new icon entry is not in the v3.1.0 list");
 });
 
+test("each changelog marks only v3.2.0 as the latest release", () => {
+    for (const [page, label] of [["changelog.html", "最新"], ["changelog.en.html", "Latest"]]) {
+        const html = fs.readFileSync(path.join(pagesSrc, page), "utf8");
+        assert.strictEqual(html.split(label).length - 1, 1, `${page}: ${label} must appear once`);
+        assert.ok(html.includes(`<h3 class="ver">v3.2.0 <span class="latest">${label}</span></h3>`), `${page}: ${label} is not on v3.2.0`);
+        assert.strictEqual(html.split("<article class=\"entry\">")[1].includes("v3.2.0"), true, `${page}: v3.2.0 is not the first entry`);
+    }
+});
+
 test("pages declare the title, language, icon and stylesheet", () => {
-    const titles = { "readme.html": "Tronclass PDF 使用說明", "changelog.html": "Tronclass PDF 更新紀錄" };
-    for (const [page, title] of Object.entries(titles)) {
+    const titles = {
+        "readme.html": ["Tronclass PDF 使用說明", "zh-Hant"],
+        "changelog.html": ["Tronclass PDF 更新紀錄", "zh-Hant"],
+        "readme.en.html": ["Tronclass PDF Guide", "en"],
+        "changelog.en.html": ["Tronclass PDF Changelog", "en"]
+    };
+    for (const [page, [title, lang]] of Object.entries(titles)) {
         const html = fs.readFileSync(path.join(pagesSrc, page), "utf8");
         assert.ok(html.includes(`<title>${title}</title>`), `${page} title`);
-        assert.ok(html.includes("<html lang=\"zh-Hant\">"), `${page} lang`);
+        assert.ok(html.includes(`<html lang="${lang}">`), `${page} lang`);
         assert.ok(html.includes("<link rel=\"icon\" href=\"../img/icon128.png\">"), `${page} icon`);
         assert.ok(html.includes("<link rel=\"stylesheet\" href=\"style.css\">"), `${page} stylesheet`);
     }
 });
 
 test("pages have no inline styles or scripts", () => {
-    for (const page of ["readme.html", "changelog.html"]) {
+    for (const { page } of PAGES) {
         const html = fs.readFileSync(path.join(pagesSrc, page), "utf8");
         for (const text of ["style=\"", "<script", "<style"]) {
             assert.ok(!html.includes(text), `${page} contains ${text}`);
         }
+    }
+});
+
+test("the English readme shows the translated terms of use at the top", () => {
+    const html = fs.readFileSync(path.join(pagesSrc, "readme.en.html"), "utf8");
+    const terms = html.indexOf("Terms of use");
+    assert.ok(terms !== -1);
+    assert.ok(terms < html.indexOf("Pin the extension"));
+    assert.ok(terms < html.indexOf("class=\"lede\""), "terms come before the lede, as in the Chinese page");
+    const items = [...html.slice(terms).matchAll(/<li>([^<]*)<\/li>/g)].map((match) => match[1]);
+    assert.deepStrictEqual(items.slice(0, 4), TERMS_EN);
+    const list = html.slice(html.indexOf("<ol>", terms), html.indexOf("</ol>", terms));
+    assert.strictEqual(list.split("<li>").length - 1, 4);
+});
+
+test("the English readme uses the English guide images and the Chinese readme keeps the originals", () => {
+    const imagesOf = (page) => [...fs.readFileSync(path.join(pagesSrc, page), "utf8").matchAll(/src="(\.\.\/img\/(?:unpinned|pinned|downloading)[^"]*)"/g)].map((match) => match[1]);
+    assert.deepStrictEqual(imagesOf("readme.en.html"), ["../img/unpinned.en.png", "../img/pinned.en.png", "../img/downloading.en.png"]);
+    assert.deepStrictEqual(imagesOf("readme.html"), ["../img/unpinned.png", "../img/pinned.png", "../img/downloading.png"]);
+});
+
+test("every page links to the same page in the other language from the titlebar", () => {
+    for (const { page, other, switchText } of PAGES) {
+        const html = fs.readFileSync(path.join(pagesSrc, page), "utf8");
+        const titlebar = html.slice(html.indexOf("<div class=\"titlebar\">"), html.indexOf("<div class=\"badges\">"));
+        const links = [...titlebar.matchAll(/<a class="lang-switch" href="([^"]*)"[^>]*>([^<]*)<\/a>/g)].map((match) => [match[1], match[2]]);
+        assert.deepStrictEqual(links, [[other, switchText]], page);
     }
 });
 

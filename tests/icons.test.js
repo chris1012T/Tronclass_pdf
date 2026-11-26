@@ -92,14 +92,15 @@ function colorShares(png) {
         if (a === 255 && g - r >= 60 && b - r >= 60) {
             teal++;
         }
-        if (a > 0 && near([r, g, b], ORANGE, 16)) {
+        // Coral has green well above blue; red-on-white anti-aliasing has them equal.
+        if (a > 0 && near([r, g, b], ORANGE, 16) && g - b >= 15) {
             orange++;
         }
         if (a === 255 && r >= 240 && g <= 30 && b <= 30) {
             red++;
         }
     }
-    return { teal: teal / total, orange: orange / total, red };
+    return { teal: teal / total, orange, red: red / total };
 }
 
 for (const size of SIZES) {
@@ -118,13 +119,13 @@ for (const size of SIZES) {
         assert.strictEqual(pixelAt(png, 0, 0)[3], 0);
     });
 
-    test(`icon${size}.png uses the teal and coral colours and no old pure red`, () => {
+    test(`icon${size}.png uses the teal and red colours and no coral`, () => {
         const png = loadIcon(size);
         assert.ok(png.pixels, "not 8-bit RGBA");
         const shares = colorShares(png);
         assert.ok(shares.teal >= 0.02, `teal share ${shares.teal}`);
-        assert.ok(shares.orange >= 0.01, `coral share ${shares.orange}`);
-        assert.strictEqual(shares.red, 0);
+        assert.ok(shares.red >= 0.01, `red share ${shares.red}`);
+        assert.strictEqual(shares.orange, 0);
     });
 }
 

@@ -23,12 +23,13 @@ const ICONS = {
 
 const COMMON = {
     name: "Tronclass pdf",
-    description: "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。",
-    version: "3.1.0",
+    description: "__MSG_extDescription__",
+    default_locale: "en",
+    version: "3.2.0",
     manifest_version: 3,
     action: {
         default_icon: ICONS,
-        default_title: "請先開啟教材頁面再點我"
+        default_title: "__MSG_actionTitle__"
     },
     icons: ICONS,
     permissions: ["scripting", "activeTab", "contextMenus", "downloads", "storage"]
@@ -103,16 +104,67 @@ test("mergeManifest deep merges objects and replaces arrays", () => {
     assert.deepStrictEqual(merged, { a: { b: 1, c: 3 }, list: [9] });
 });
 
-test("fillPlaceholders fills Chrome and Firefox values", () => {
+test("fillPlaceholders fills Chrome and Firefox values for Chinese pages", () => {
     const html = "<a href=\"{{OTHER_STORE_URL}}\"><img src=\"{{OTHER_STORE_ICON}}\" alt=\"{{OTHER_STORE_ALT}}\">{{OTHER_STORE_NAME}}</a><a href=\"{{GITHUB_URL}}\"></a>";
     assert.strictEqual(
-        lib.fillPlaceholders(html, lib.PLACEHOLDER_VALUES.chrome),
+        lib.fillPlaceholders(html, lib.placeholderValues("chrome", "zh_TW")),
         "<a href=\"https://addons.mozilla.org/en-US/firefox/addon/tronclass-pdf/\"><img src=\"../img/firefox_addons_icon.png\" alt=\"firefox\">Firefox 版</a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
     );
     assert.strictEqual(
-        lib.fillPlaceholders(html, lib.PLACEHOLDER_VALUES.firefox),
+        lib.fillPlaceholders(html, lib.placeholderValues("firefox", "zh_TW")),
         "<a href=\"https://chromewebstore.google.com/detail/tronclass-pdf/hfnbdhdncoploidiifmbpenakollmggg\"><img src=\"../img/chrome_extension_icon.svg\" alt=\"chrome\">Chrome 版</a><a href=\"https://github.com/chris1012T/Tronclass_pdf\"></a>"
     );
+});
+
+const PIN_STEPS = {
+    chrome: {
+        zh_TW: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">圖釘</span>，圖示就會留在工具列。",
+        en: "Click the puzzle icon at the top right, then click the <span class=\"mark\">pin</span> next to Tronclass PDF to keep its icon on the toolbar."
+    },
+    firefox: {
+        zh_TW: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">齒輪</span>，選<span class=\"mark\">「釘選至工具列」</span>，圖示就會留在工具列。",
+        en: "Click the puzzle icon at the top right, click the <span class=\"mark\">gear</span> next to Tronclass PDF, then choose <span class=\"mark\">Pin to Toolbar</span>."
+    }
+};
+
+const OTHER_STORE_NAMES = {
+    chrome: { zh_TW: "Firefox 版", en: "Firefox version" },
+    firefox: { zh_TW: "Chrome 版", en: "Chrome version" }
+};
+
+test("pageLocale reads the language from the file name", () => {
+    assert.strictEqual(lib.pageLocale("/out/pages/readme.en.html"), "en");
+    assert.strictEqual(lib.pageLocale("/out/pages/readme.html"), "zh_TW");
+    assert.strictEqual(lib.pageLocale("/out/pages/changelog.html"), "zh_TW");
+    assert.strictEqual(lib.pageLocale("/out/en/readme.html"), "zh_TW");
+    assert.strictEqual(lib.pageLocale("/out/pages/x.english.html"), "zh_TW");
+});
+
+for (const browser of ["chrome", "firefox"]) {
+    test(`build fills ${browser} store name and pin steps by the page language`, (t) => {
+        const tmp = makeTmp(t);
+        const srcDir = path.join(tmp, "src");
+        const html = "<p>{{OTHER_STORE_NAME}}|{{PIN_STEPS}}|{{GITHUB_URL}}</p>";
+        writeSrc(srcDir, html);
+        fs.writeFileSync(path.join(srcDir, "pages", "x.en.html"), html);
+        const target = lib.build(browser, { srcDir, manifestsDir, outDir: path.join(tmp, "out") });
+        for (const [file, locale] of [["x.html", "zh_TW"], ["x.en.html", "en"]]) {
+            assert.strictEqual(
+                fs.readFileSync(path.join(target, "pages", file), "utf8"),
+                `<p>${OTHER_STORE_NAMES[browser][locale]}|${PIN_STEPS[browser][locale]}|https://github.com/chris1012T/Tronclass_pdf</p>`,
+                `${browser} ${file}`
+            );
+        }
+    });
+}
+
+test("every browser has the same placeholder names in both languages", () => {
+    for (const browser of lib.BROWSERS) {
+        const locales = lib.LOCALIZED_PLACEHOLDER_VALUES[browser];
+        assert.deepStrictEqual(Object.keys(locales).sort(), ["en", "zh_TW"]);
+        assert.deepStrictEqual(Object.keys(locales.en).sort(), Object.keys(locales.zh_TW).sort());
+        assert.deepStrictEqual(Object.keys(lib.placeholderValues(browser, "en")).sort(), Object.keys(lib.placeholderValues(browser, "zh_TW")).sort());
+    }
 });
 
 test("findPlaceholders returns leftover placeholders", () => {
@@ -220,12 +272,12 @@ for (const browser of ["chrome", "firefox"]) {
     test(`build output for ${browser} has the expected files and screenshots`, (t) => {
         const tmp = makeTmp(t);
         const target = lib.build(browser, { outDir: tmp });
-        for (const file of ["manifest.json", "background.js", "content/run.js", "pages/readme.html", "pages/changelog.html", "pages/style.css", "img/icon128.png"]) {
+        for (const file of ["manifest.json", "background.js", "content/run.js", "pages/readme.html", "pages/changelog.html", "pages/style.css", "img/icon128.png", "_locales/en/messages.json", "_locales/zh_TW/messages.json"]) {
             assert.ok(fs.existsSync(path.join(target, file)), `${file} missing`);
         }
         assert.strictEqual(fs.existsSync(path.join(target, "img-chrome")), false);
         assert.strictEqual(fs.existsSync(path.join(target, "img-firefox")), false);
-        for (const image of ["pinned.png", "unpinned.png"]) {
+        for (const image of ["pinned.png", "unpinned.png", "pinned.en.png", "unpinned.en.png"]) {
             assert.strictEqual(md5(path.join(target, "img", image)), md5(path.join(repoRoot, "src", `img-${browser}`, image)));
         }
         const manifest = readJson(path.join(target, "manifest.json"));
@@ -233,3 +285,34 @@ for (const browser of ["chrome", "firefox"]) {
         assert.strictEqual(fs.readFileSync(path.join(target, "manifest.json"), "utf8"), JSON.stringify(manifest, null, 4) + "\n");
     });
 }
+
+// en and zh_TW come from src/_locales; every other folder is a copy of zh_TW made by the build.
+const EXPECTED_LOCALES = ["en", "zh_CN", "zh_TW"];
+
+for (const browser of ["chrome", "firefox"]) {
+    test(`${browser} build ships en, zh_TW and exact zh_TW copies for the other Chinese locales`, (t) => {
+        const tmp = makeTmp(t);
+        const target = lib.build(browser, { outDir: tmp });
+        const locales = fs.readdirSync(path.join(target, "_locales")).sort();
+        assert.deepStrictEqual(locales, EXPECTED_LOCALES);
+        assert.deepStrictEqual(locales, ["en", "zh_TW", ...lib.CHINESE_LOCALE_COPIES].sort());
+        const chinese = md5(path.join(target, "_locales", "zh_TW", "messages.json"));
+        assert.strictEqual(chinese, md5(path.join(repoRoot, "src", "_locales", "zh_TW", "messages.json")));
+        for (const locale of lib.CHINESE_LOCALE_COPIES) {
+            assert.strictEqual(md5(path.join(target, "_locales", locale, "messages.json")), chinese, locale);
+        }
+    });
+}
+
+test("the source keeps only en and zh_TW locales", () => {
+    assert.deepStrictEqual(fs.readdirSync(path.join(repoRoot, "src", "_locales")).sort(), ["en", "zh_TW"]);
+});
+
+test("build without _locales in the source succeeds and writes no _locales", (t) => {
+    const tmp = makeTmp(t);
+    const srcDir = path.join(tmp, "src");
+    writeSrc(srcDir, "<p></p>");
+    const target = lib.build("chrome", { srcDir, manifestsDir, outDir: path.join(tmp, "out") });
+    assert.strictEqual(fs.existsSync(path.join(target, "_locales")), false);
+    assert.strictEqual(fs.existsSync(path.join(target, "manifest.json")), true);
+});

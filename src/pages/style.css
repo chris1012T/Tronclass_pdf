@@ -121,6 +121,8 @@ main.v4 {
     gap: 14px;
     justify-content: center;
     flex-wrap: wrap;
+    /* Room for the tilted photos, so their corners do not overflow the column. */
+    padding: 0 2px;
 }
 
 .v4 .pol {
@@ -180,9 +182,35 @@ main.v4 {
     flex-wrap: wrap;
 }
 
+/* Holds the language switch link and the badges on the right of the title. */
+.v4 .titlebar-side {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.v4 .lang-switch {
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--d-muted);
+    text-decoration: none;
+    border: 1px solid var(--d-grid);
+    border-radius: 12px;
+    padding: 2px 10px;
+    background: var(--d-paper);
+}
+
+.v4 .lang-switch:hover {
+    color: var(--d-ink);
+    border-color: var(--d-muted);
+}
+
 .v4 .badges {
     display: flex;
     gap: 18px;
+    /* Room for the tilted last icon, so its corner does not overflow the row. */
+    padding-right: 1px;
 }
 
 .v4 .badges a {

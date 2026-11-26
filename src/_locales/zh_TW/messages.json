@@ -1,0 +1,66 @@
+{
+    "extDescription": {
+        "message": "本擴充套件可下載Tronclass(iClass)上大多數教材，包括影片、音訊、PDF及PPT(以PDF格式下載)。",
+        "description": "Store and extension page description."
+    },
+    "actionTitle": {
+        "message": "請先開啟教材頁面再點我",
+        "description": "Toolbar button tooltip."
+    },
+    "menuReadme": {
+        "message": "使用說明",
+        "description": "Toolbar right-click menu item that opens the guide page."
+    },
+    "menuChangelog": {
+        "message": "更新紀錄",
+        "description": "Toolbar right-click menu item that opens the changelog page."
+    },
+    "menuDownload": {
+        "message": "下載此教材 (Tronclass)",
+        "description": "Page right-click menu item that downloads the current material."
+    },
+    "menuGitHub": {
+        "message": "GitHub Page",
+        "description": "Toolbar right-click menu item that opens the GitHub repository."
+    },
+    "whatsNewMessage": {
+        "message": "Tronclass PDF 更新：現在也能下載音訊教材了。",
+        "description": "Notice shown on the page after the first download following an update."
+    },
+    "whatsNewTitle": {
+        "message": "Tronclass PDF：新增音訊下載，按一下圖示即可下載教材",
+        "description": "Toolbar tooltip while the NEW badge is shown."
+    },
+    "closeLabel": {
+        "message": "關閉",
+        "description": "Accessible label of the close button on the update notice."
+    },
+    "errorNotMaterial": {
+        "message": "請先開啟教材!",
+        "description": "Alert on a course page that is not a material."
+    },
+    "errorStreamingVideo": {
+        "message": "這部影片是串流格式，無法直接下載。",
+        "description": "Alert for a streamed video."
+    },
+    "errorStreamingAudio": {
+        "message": "這個音訊是串流格式，無法直接下載。",
+        "description": "Alert for a streamed audio."
+    },
+    "errorNotFound": {
+        "message": "這個頁面找不到可下載的教材。",
+        "description": "Alert when the page has no material."
+    },
+    "fallbackFilename": {
+        "message": "Tronclass教材",
+        "description": "File name used when the material has no title."
+    },
+    "readmePage": {
+        "message": "pages/readme.html",
+        "description": "Path of the guide page in this language."
+    },
+    "changelogPage": {
+        "message": "pages/changelog.html",
+        "description": "Path of the changelog page in this language."
+    }
+}
