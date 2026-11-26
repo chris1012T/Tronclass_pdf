@@ -6,26 +6,60 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 
 const GITHUB_URL = "https://github.com/chris1012T/Tronclass_pdf";
 
+// Values that are the same in every page language.
 export const PLACEHOLDER_VALUES = {
     chrome: {
         OTHER_STORE_URL: "https://addons.mozilla.org/en-US/firefox/addon/tronclass-pdf/",
         OTHER_STORE_ICON: "../img/firefox_addons_icon.png",
         OTHER_STORE_ALT: "firefox",
-        OTHER_STORE_NAME: "Firefox 版",
-        PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">圖釘</span>，圖示就會留在工具列。",
         GITHUB_URL
     },
     firefox: {
         OTHER_STORE_URL: "https://chromewebstore.google.com/detail/tronclass-pdf/hfnbdhdncoploidiifmbpenakollmggg",
         OTHER_STORE_ICON: "../img/chrome_extension_icon.svg",
         OTHER_STORE_ALT: "chrome",
-        OTHER_STORE_NAME: "Chrome 版",
-        PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">齒輪</span>，選<span class=\"mark\">「釘選至工具列」</span>，圖示就會留在工具列。",
         GITHUB_URL
     }
 };
 
+// Values that depend on the page language, keyed by browser and then by locale.
+export const LOCALIZED_PLACEHOLDER_VALUES = {
+    chrome: {
+        zh_TW: {
+            OTHER_STORE_NAME: "Firefox 版",
+            PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">圖釘</span>，圖示就會留在工具列。"
+        },
+        en: {
+            OTHER_STORE_NAME: "Firefox version",
+            PIN_STEPS: "Click the puzzle icon at the top right, then click the <span class=\"mark\">pin</span> next to Tronclass PDF to keep its icon on the toolbar."
+        }
+    },
+    firefox: {
+        zh_TW: {
+            OTHER_STORE_NAME: "Chrome 版",
+            PIN_STEPS: "按右上角拼圖圖示，在 Tronclass PDF 旁按<span class=\"mark\">齒輪</span>，選<span class=\"mark\">「釘選至工具列」</span>，圖示就會留在工具列。"
+        },
+        en: {
+            OTHER_STORE_NAME: "Chrome version",
+            PIN_STEPS: "Click the puzzle icon at the top right, click the <span class=\"mark\">gear</span> next to Tronclass PDF, then choose <span class=\"mark\">Pin to Toolbar</span>."
+        }
+    }
+};
+
+// The file name decides the page language: "x.en.html" is English, any other page is Traditional Chinese.
+export function pageLocale(file) {
+    return file.endsWith(".en.html") ? "en" : "zh_TW";
+}
+
+export function placeholderValues(browser, locale) {
+    return { ...PLACEHOLDER_VALUES[browser], ...LOCALIZED_PLACEHOLDER_VALUES[browser][locale] };
+}
+
 export const BROWSERS = Object.keys(PLACEHOLDER_VALUES);
+
+// Other Chinese locales that get an exact copy of zh_TW, so every Chinese browser shows Traditional Chinese.
+// Without them Chrome falls back to default_locale (en) for a zh_CN browser.
+export const CHINESE_LOCALE_COPIES = ["zh_CN"];
 
 function isPlainObject(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -93,11 +127,20 @@ export function build(browser, options = {}) {
         fs.cpSync(browserImages, path.join(target, "img"), { recursive: true });
     }
 
+    const chineseMessages = path.join(target, "_locales", "zh_TW", "messages.json");
+    // A source tree without zh_TW messages, such as a test fixture, has nothing to copy.
+    if (fs.existsSync(chineseMessages)) {
+        for (const locale of CHINESE_LOCALE_COPIES) {
+            fs.mkdirSync(path.join(target, "_locales", locale), { recursive: true });
+            fs.copyFileSync(chineseMessages, path.join(target, "_locales", locale, "messages.json"));
+        }
+    }
+
     fs.writeFileSync(path.join(target, "manifest.json"), JSON.stringify(manifest, null, 4) + "\n");
 
     const leftovers = [];
     for (const file of listFiles(target).filter((name) => name.endsWith(".html"))) {
-        const text = fillPlaceholders(fs.readFileSync(file, "utf8"), PLACEHOLDER_VALUES[browser]);
+        const text = fillPlaceholders(fs.readFileSync(file, "utf8"), placeholderValues(browser, pageLocale(file)));
         fs.writeFileSync(file, text);
         const found = findPlaceholders(text);
         if (found.length > 0) {

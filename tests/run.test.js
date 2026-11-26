@@ -3,6 +3,7 @@ const assert = require("node:assert");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { makeI18n, readMessages } = require("./fake-i18n.js");
 
 const contentDir = path.resolve(__dirname, "..", "src", "content");
 const extractCode = fs.readFileSync(path.join(contentDir, "extract.js"), "utf8");
@@ -15,13 +16,16 @@ function fakeDocument(elements) {
     };
 }
 
-function makeContext() {
+function makeContext(locale = "zh_TW") {
     const sent = [];
     const alerts = [];
     const context = vm.createContext({
         URL,
         location: { href: "https://x.edu/course/1" },
-        chrome: { runtime: { sendMessage: (message) => sent.push(JSON.parse(JSON.stringify(message))) } },
+        chrome: {
+            runtime: { sendMessage: (message) => sent.push(JSON.parse(JSON.stringify(message))) },
+            i18n: makeI18n(locale)
+        },
         alert: (text) => alerts.push(text)
     });
     return { context, sent, alerts };
@@ -98,4 +102,46 @@ test("a streaming audio explains it cannot be downloaded", () => {
     inject(context, fakeDocument({ ".audio": { currentSrc: "blob:https://x.edu/1", src: "" } }));
     assert.deepStrictEqual(alerts, ["這個音訊是串流格式，無法直接下載。"]);
     assert.deepStrictEqual(sent, []);
+});
+
+const ERROR_PAGES = [
+    ["errorNotMaterial", fakeDocument({ ".course-header-container": {} })],
+    ["errorStreamingVideo", fakeDocument({ "video": { currentSrc: "blob:https://x.edu/1", src: "" } })],
+    ["errorStreamingAudio", fakeDocument({ ".audio": { currentSrc: "blob:https://x.edu/1", src: "" } })],
+    ["errorNotFound", fakeDocument({})]
+];
+
+for (const locale of ["en", "zh_TW"]) {
+    test(`${locale} errors alert the ${locale} messages`, () => {
+        const messages = readMessages(locale);
+        for (const [key, page] of ERROR_PAGES) {
+            const { context, sent, alerts } = makeContext(locale);
+            inject(context, page);
+            assert.deepStrictEqual(alerts, [messages[key]], key);
+            assert.deepStrictEqual(sent, []);
+        }
+    });
+}
+
+const BLANK_TITLE_PAGE = fakeDocument({
+    "#pdf-viewer": { src: "https://x.edu/viewer.html?file=%2Fa.pdf&upload_id=1" },
+    ".title span": { innerText: "   " }
+});
+
+test("a blank title uses the en fallback filename", () => {
+    const { context, sent } = makeContext("en");
+    inject(context, BLANK_TITLE_PAGE);
+    assert.deepStrictEqual(sent, [{ type: "download", url: "https://x.edu/a.pdf", filename: "Tronclass material.pdf" }]);
+});
+
+test("a blank title uses the zh_TW fallback filename", () => {
+    const { context, sent } = makeContext("zh_TW");
+    inject(context, BLANK_TITLE_PAGE);
+    assert.deepStrictEqual(sent, [{ type: "download", url: "https://x.edu/a.pdf", filename: "Tronclass教材.pdf" }]);
+});
+
+test("run.js keeps let, const and class out of its top level", () => {
+    // Only the IIFE and comments may sit at the top level, since the file is injected again on every click.
+    const topLevel = runCode.split("\n").filter((line) => line !== "" && !/^\s/.test(line) && !line.startsWith("//"));
+    assert.deepStrictEqual(topLevel, ["(function () {", "})();"]);
 });

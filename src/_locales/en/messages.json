@@ -1,0 +1,66 @@
+{
+    "extDescription": {
+        "message": "Download most materials from Tronclass (iClass), including videos, audio, PDFs and PPTs (saved as PDF).",
+        "description": "Store and extension page description."
+    },
+    "actionTitle": {
+        "message": "Open a material page first, then click me",
+        "description": "Toolbar button tooltip."
+    },
+    "menuReadme": {
+        "message": "Guide",
+        "description": "Toolbar right-click menu item that opens the guide page."
+    },
+    "menuChangelog": {
+        "message": "Changelog",
+        "description": "Toolbar right-click menu item that opens the changelog page."
+    },
+    "menuDownload": {
+        "message": "Download this material (Tronclass)",
+        "description": "Page right-click menu item that downloads the current material."
+    },
+    "menuGitHub": {
+        "message": "GitHub Page",
+        "description": "Toolbar right-click menu item that opens the GitHub repository."
+    },
+    "whatsNewMessage": {
+        "message": "Tronclass PDF update: you can now download audio materials too.",
+        "description": "Notice shown on the page after the first download following an update."
+    },
+    "whatsNewTitle": {
+        "message": "Tronclass PDF: audio downloads added. Click the icon to download a material",
+        "description": "Toolbar tooltip while the NEW badge is shown."
+    },
+    "closeLabel": {
+        "message": "Close",
+        "description": "Accessible label of the close button on the update notice."
+    },
+    "errorNotMaterial": {
+        "message": "Please open a material first!",
+        "description": "Alert on a course page that is not a material."
+    },
+    "errorStreamingVideo": {
+        "message": "This video is streamed and cannot be downloaded directly.",
+        "description": "Alert for a streamed video."
+    },
+    "errorStreamingAudio": {
+        "message": "This audio is streamed and cannot be downloaded directly.",
+        "description": "Alert for a streamed audio."
+    },
+    "errorNotFound": {
+        "message": "No downloadable material was found on this page.",
+        "description": "Alert when the page has no material."
+    },
+    "fallbackFilename": {
+        "message": "Tronclass material",
+        "description": "File name used when the material has no title."
+    },
+    "readmePage": {
+        "message": "pages/readme.en.html",
+        "description": "Path of the guide page in this language."
+    },
+    "changelogPage": {
+        "message": "pages/changelog.en.html",
+        "description": "Path of the changelog page in this language."
+    }
+}

@@ -5,13 +5,18 @@ import { chromePathOrExit, withChromium, waitFor, PAINTED } from "./chromium.mjs
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-// Each .scene id in design/guide.html and the readme page image it becomes.
+// Each .scene id in design/guide.html and the readme page image it becomes; "-en" scenes feed the .en.html pages.
 const SCENES = [
     { id: "chrome-unpinned", out: "src/img-chrome/unpinned.png" },
     { id: "chrome-pinned", out: "src/img-chrome/pinned.png" },
     { id: "firefox-unpinned", out: "src/img-firefox/unpinned.png" },
     { id: "firefox-pinned", out: "src/img-firefox/pinned.png" },
-    { id: "downloading", out: "src/img/downloading.png" }
+    { id: "downloading", out: "src/img/downloading.png" },
+    { id: "chrome-unpinned-en", out: "src/img-chrome/unpinned.en.png" },
+    { id: "chrome-pinned-en", out: "src/img-chrome/pinned.en.png" },
+    { id: "firefox-unpinned-en", out: "src/img-firefox/unpinned.en.png" },
+    { id: "firefox-pinned-en", out: "src/img-firefox/pinned.en.png" },
+    { id: "downloading-en", out: "src/img/downloading.en.png" }
 ];
 
 const SCALE = 2;

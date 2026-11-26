@@ -15,7 +15,8 @@ function trimFilenameEnd(name) {
     return name.replace(/[.\s]+$/, "");
 }
 
-function sanitizeFilename(name, extension) {
+// fallback is the translated name for an empty title; undefined or "" keeps the original Chinese name.
+function sanitizeFilename(name, extension, fallback) {
     // Trim first so leading and trailing newlines are dropped instead of becoming "_".
     const cleaned = name.trim().replace(/[/<>:"\\|?*\x00-\x1f]/g, "_");
     let bytes = 0;
@@ -29,7 +30,7 @@ function sanitizeFilename(name, extension) {
     }
     // Trailing dots and spaces are only stripped here, which covers both the original end and the cut point.
     const base = trimFilenameEnd(truncated);
-    return `${base || "Tronclass教材"}.${extension}`;
+    return `${base || fallback || "Tronclass教材"}.${extension}`;
 }
 
 function textOf(element) {
@@ -48,7 +49,7 @@ function pdfFileParam(src, viewerUrl) {
     return viewerUrl.searchParams.get("file");
 }
 
-function extractPdf(doc, viewer, pageUrl) {
+function extractPdf(doc, viewer, pageUrl, fallback) {
     const src = viewer.src;
     let url;
     try {
@@ -61,10 +62,10 @@ function extractPdf(doc, viewer, pageUrl) {
     } catch {
         return { ok: false, reason: "not-found" };
     }
-    return { ok: true, url, filename: sanitizeFilename(textOf(doc.querySelector(".title span")), "pdf") };
+    return { ok: true, url, filename: sanitizeFilename(textOf(doc.querySelector(".title span")), "pdf", fallback) };
 }
 
-function extractVideo(doc, video) {
+function extractVideo(doc, video, fallback) {
     const url = video.currentSrc || video.src;
     if (url.startsWith("blob:")) {
         return { ok: false, reason: "streaming-video" };
@@ -72,7 +73,7 @@ function extractVideo(doc, video) {
     if (url === "") {
         return { ok: false, reason: "not-found" };
     }
-    return { ok: true, url, filename: sanitizeFilename(textOf(doc.querySelector("span.title")), "mp4") };
+    return { ok: true, url, filename: sanitizeFilename(textOf(doc.querySelector("span.title")), "mp4", fallback) };
 }
 
 function audioExtension(url) {
@@ -87,7 +88,7 @@ function audioExtension(url) {
     }
 }
 
-function extractAudio(doc, audio) {
+function extractAudio(doc, audio, fallback) {
     const url = audio.currentSrc || audio.src || "";
     if (url.startsWith("blob:")) {
         return { ok: false, reason: "streaming-audio" };
@@ -96,21 +97,21 @@ function extractAudio(doc, audio) {
         return { ok: false, reason: "not-found" };
     }
     const title = textOf(doc.querySelector(".title span")) || textOf(doc.querySelector("span.title"));
-    return { ok: true, url, filename: sanitizeFilename(title, audioExtension(url)) };
+    return { ok: true, url, filename: sanitizeFilename(title, audioExtension(url), fallback) };
 }
 
-function extractMaterial(doc, pageUrl) {
+function extractMaterial(doc, pageUrl, fallback) {
     const viewer = doc.getElementById("pdf-viewer");
     if (viewer) {
-        return extractPdf(doc, viewer, pageUrl);
+        return extractPdf(doc, viewer, pageUrl, fallback);
     }
     const video = doc.querySelector("video");
     if (video) {
-        return extractVideo(doc, video);
+        return extractVideo(doc, video, fallback);
     }
     const audio = doc.querySelector(".audio");
     if (audio) {
-        return extractAudio(doc, audio);
+        return extractAudio(doc, audio, fallback);
     }
     if (doc.querySelector(".course-header-container") || doc.querySelector(".activity-title-wrapper")) {
         return { ok: false, reason: "not-material" };
